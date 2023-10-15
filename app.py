@@ -14,7 +14,7 @@ import random
 app = Flask(__name__)
 
 
-def load_model():
+def load_model(query):
     data = np.load("model/MA_2020.npz")
     feats = data["feats"]
     locs = data["locs"]
@@ -26,7 +26,7 @@ def load_model():
     )
     tokenizer = AutoTokenizer.from_pretrained("openai/clip-vit-base-patch16")
     texts = [
-        "City",
+       query
     ]
     with torch.no_grad():
         textsenc = tokenizer(texts, padding=True, return_tensors="pt").to(device)
@@ -75,10 +75,10 @@ def classified_points():
         ]
         for _ in range(10)
     ]
-    list_of_blue_points = load_model()
+    list_of_blue_points = load_model(query)
     return (
-        jsonify(query=query, blue_coords=list_of_blue_points, red_coords=red_coords), 200
-        #jsonify(query=query, blue_coords=random.sample(list_of_blue_points, min(1000, len(list_of_red_points))), red_coords=red_coords), 200
+        #jsonify(query=query, blue_coords=list_of_blue_points, red_coords=red_coords), 200
+        jsonify(query=query, blue_coords=random.sample(list_of_blue_points, min(1000, len(list_of_blue_points))), red_coords=red_coords), 200
 
     )
 
