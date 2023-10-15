@@ -184,26 +184,29 @@
                         });
                         console.log(data);
                         data.blue_coords.forEach((coord) => {
-                            L.marker(coord, {
-                                icon: L.divIcon({
-                                    className: "blue-marker",
-                                    iconSize: [2, 2],
-                                    html: '<div style="width: 2px; height: 2px; background-color: #0033FF; border-radius: 50%;"></div>',
-                                }),
-                            }).addTo(map);
+                        L.marker(coord, {
+                            icon: L.divIcon({
+                                className: "blue-marker",
+                                html: '<div style="width: 2px; height: 2px; background-color: #0033FF; border-radius: 50%;"></div>',
+                            }),
+                        }).addTo(map);
                         });
 
-                        var redIcon = new L.Icon({
-                            iconUrl: "{{ url_for('static', filename='red-marker.png') }}",
+                        // Using the default red icon
+                        var redIcon = L.icon({
+                            iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
                             iconSize: [25, 41],
                             iconAnchor: [12, 41],
                             popupAnchor: [1, -34],
                         });
-                        console.log(data.red_coords);
-                        data.red_coords.forEach((coord) => {
-                            L.marker([coord[0], coord[1]], {icon: redIcon}).addTo(map);
-                        });
 
+                        // Log the red_coords data to the console
+                        console.log(data.red_coords);
+
+                        // Loop through each coordinate in red_coords and add a marker to the map
+                        data.red_coords.forEach((coord) => {
+                            L.marker([coord[0], coord[1]], { icon: redIcon }).addTo(map);
+                        });
                     })
                     .catch((error) => console.error("Error:", error));
             }
