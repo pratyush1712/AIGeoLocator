@@ -1,11 +1,55 @@
 from flask import Flask, request, jsonify, render_template
+from os.path import join, isfile, isdir
+from os import listdir
+from multiprocessing import Pool
+from PIL import Image
+from torchvision import transforms
+from tqdm import tqdm
+import numpy as np
+import torch.nn.functional as F
+from transformers import AutoTokenizer, CLIPTextModelWithProjection
+import torch
 import random
+
 app = Flask(__name__)
+
+
+def load_model():
+    data = np.load("model/MA_2020.npz")
+    feats = data["feats"]
+    locs = data["locs"]
+    device = "cpu"
+    textmodel = (
+        CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch16")
+        .eval()
+        .to(device)
+    )
+    tokenizer = AutoTokenizer.from_pretrained("openai/clip-vit-base-patch16")
+    texts = [
+        "A lake, river or a water body",
+    ]
+    with torch.no_grad():
+        textsenc = tokenizer(texts, padding=True, return_tensors="pt").to(device)
+        class_embeddings = F.normalize(textmodel(**textsenc).text_embeds, dim=-1)
+
+    classprob = feats @ class_embeddings.cpu().numpy().T
+
+    thresh = 0.05
+    condition = classprob[:, 0] > thresh
+
+    filtered_locs = locs[condition]
+    swapped_points = filtered_locs[:, [1, 0]]
+    list_of_swapped_points = swapped_points.tolist()
+    return list_of_swapped_points
 
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+def get_coordinates():
+    return [random.uniform(-90, 90), random.uniform(-180, 180)]
 
 
 @app.route("/classified-points", methods=["POST"])
@@ -19,18 +63,23 @@ def classified_points():
     blue_coords = [
         [
             random.uniform(southWest["lat"], northEast["lat"]),
-            random.uniform(southWest["lng"], northEast["lng"])
-        ] for _ in range(1000)
+            random.uniform(southWest["lng"], northEast["lng"]),
+        ]
+        for _ in range(1000)
     ]
 
     red_coords = [
         [
             random.uniform(southWest["lat"], northEast["lat"]),
-            random.uniform(southWest["lng"], northEast["lng"])
-        ] for _ in range(10)
+            random.uniform(southWest["lng"], northEast["lng"]),
+        ]
+        for _ in range(10)
     ]
-
-    return jsonify(query=query, blue_coords=blue_coords, red_coords=red_coords), 200
+    list_of_red_points = load_model()
+    return (
+        jsonify(query=query, blue_coords=list_of_red_points, red_coords=red_coords),
+        200,
+    )
 
 
 if __name__ == "__main__":
