@@ -1,26 +1,37 @@
 from flask import Flask, request, jsonify, render_template
-
+import random
 app = Flask(__name__)
 
 
-@app.route('/')
-@app.route('/classified-points', methods=['POST'])
-def search():
-    # Get argument: search_query
-    # Get body: latitudes and longitudes of rectangular bounding box
-
-    search_query = request.args.get('search_term')
-    # body = request.get_json()
-    # top_left_lat = body['top_left_lat']
-    # top_left_long = body['top_left_long']
-    # top_right_lat = body['top_right_lat']
-    # top_right_long = body['top_right_long']
-    # bottom_left_lat = body['bottom_left_lat']
-    # bottom_left_long = body['bottom_left_long']
-    # bottom_right_lat = body['bottom_right_lat']
-    # bottom_right_long = body['bottom_right_long']
-    return render_template('index.html')
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 
-if __name__ == '__main__':
-    app.run(host='localhost', port=8080, debug=True)
+@app.route("/classified-points", methods=["POST"])
+def classified_points():
+    query = request.args.get("query")
+    coordinates = request.json
+
+    southWest = coordinates["southWest"]
+    northEast = coordinates["northEast"]
+
+    blue_coords = [
+        [
+            random.uniform(southWest["lat"], northEast["lat"]),
+            random.uniform(southWest["lng"], northEast["lng"])
+        ] for _ in range(1000)
+    ]
+
+    red_coords = [
+        [
+            random.uniform(southWest["lat"], northEast["lat"]),
+            random.uniform(southWest["lng"], northEast["lng"])
+        ] for _ in range(10)
+    ]
+
+    return jsonify(query=query, blue_coords=blue_coords, red_coords=red_coords), 200
+
+
+if __name__ == "__main__":
+    app.run(host="localhost", port=8080, debug=True)

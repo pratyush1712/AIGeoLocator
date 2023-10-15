@@ -84,7 +84,7 @@
 
 <body>
     <h1>GRAFT Demo</h1>
-    <form action="/submit" method="post">
+    <form onsubmit="sendRequest(event)">
         <input type="text" id="userInput" name="userInput" placeholder="Query" required autocomplete="off">
         <button type="submit">Submit</button>
     </form>
@@ -138,14 +138,67 @@
         });
 
         map.on('draw:deleted', function (e) {
-            // Reset the flag when the drawn rectangle is deleted
             rectangleDrawn = false;
         });
 
         function resetDrawControls() {
-            // Reset the flag when the form is submitted
             rectangleDrawn = false;
         }
+
+        function sendRequest(e) {
+            console.log('called');
+            e.preventDefault();
+            var query = document.getElementById('userInput').value;
+
+            if (rectangleDrawn) {
+                var rectangle = drawnItems.getLayers()[0];
+                var bounds = rectangle.getBounds();
+                var southWest = bounds.getSouthWest();
+                var northEast = bounds.getNorthEast();
+
+                var coordinates = {
+                    southWest: {
+                        lat: southWest.lat,
+                        lng: southWest.lng
+                    },
+                    northEast: {
+                        lat: northEast.lat,
+                        lng: northEast.lng
+                    }
+                };
+
+                fetch(`/classified-points?query=${query}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(coordinates)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        map.eachLayer(function (layer) {
+                            if (layer instanceof L.Marker) {
+                                map.removeLayer(layer);
+                            }
+                        });
+
+                        data.blue_coords.forEach(coord => {
+                            L.circle(coord, {
+                                color: 'blue',
+                                fillColor: '#0033ff',
+                                fillOpacity: 0.07,
+                                radius: 2
+                            }).addTo(map);
+                        });
+
+                        data.red_coords.forEach(coord => {
+                            L.marker(coord, {icon: L.divIcon({className: 'red-marker', iconSize: [25, 41], iconAnchor: [12, 41]})}).addTo(map);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+
     </script>
 </body>
 
