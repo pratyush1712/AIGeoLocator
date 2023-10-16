@@ -55,6 +55,7 @@ def get_coordinates():
 @app.route("/classified-points", methods=["POST"])
 def classified_points():
     query = request.args.get("query")
+    checkbox_checked = request.args.get("limitPointsBool")
     coordinates = request.json
 
     southWest = coordinates["southWest"]
@@ -76,12 +77,10 @@ def classified_points():
         for _ in range(10)
     ]
     list_of_blue_points = load_model(query)
-    return (
-        #jsonify(query=query, blue_coords=list_of_blue_points, red_coords=red_coords), 200
-        jsonify(query=query, blue_coords=random.sample(list_of_blue_points, min(1000, len(list_of_blue_points))), red_coords=red_coords), 200
-
-    )
-
-
+    print(checkbox_checked)
+    if checkbox_checked == "true":
+        return jsonify(query=query, blue_coords=random.sample(list_of_blue_points, min(5, len(list_of_blue_points))), red_coords=red_coords), 200
+    else: 
+        return jsonify(query=query, blue_coords=list_of_blue_points, red_coords=red_coords), 200
 if __name__ == "__main__":
     app.run(host="localhost", port=8080, debug=True)

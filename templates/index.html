@@ -38,7 +38,7 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-            width: 15%;
+            width: 20%;
         }
 
         input {
@@ -86,6 +86,10 @@
     <h1>GRAFT Demo</h1>
     <form onsubmit="sendRequest(event)">
         <input type="text" id="userInput" name="userInput" placeholder="Query" required autocomplete="off" />
+       <div style="display: flex; align-items: center;">
+            <input type="checkbox" id="limitPoints" name="limitPoints" value="Limit number of points" style="vertical-align: middle;">
+            <label for="limitPoints" style="margin-left: 5px; white-space: nowrap; vertical-align: middle;">Limit number of points</label>
+        </div>
         <button type="submit">Submit</button>
     </form>
 
@@ -150,6 +154,7 @@
             console.log("called");
             e.preventDefault();
             var query = document.getElementById("userInput").value;
+            var limitPointsBool = document.getElementById("limitPoints").checked;
 
             if (rectangleDrawn) {
                 var rectangle = drawnItems.getLayers()[0];
@@ -168,7 +173,7 @@
                     },
                 };
 
-                fetch(`/classified-points?query=${query}`, {
+                fetch(`/classified-points?query=${query}&limitPointsBool=${limitPointsBool}`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
