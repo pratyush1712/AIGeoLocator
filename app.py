@@ -36,7 +36,7 @@ def load_model(query):
 
     thresh = 0.05
     condition = classprob[:, 0] > thresh
-    
+
     filtered_locs = locs[condition]
     swapped_points = filtered_locs[:, [1, 0]]
     list_of_swapped_points = swapped_points.tolist()
@@ -57,31 +57,11 @@ def classified_points():
     query = request.args.get("query")
     checkbox_checked = request.args.get("limitPointsBool")
     coordinates = request.json
-
-    southWest = coordinates["southWest"]
-    northEast = coordinates["northEast"]
-
-    # blue_coords = [
-    #     [
-    #         random.uniform(southWest["lat"], northEast["lat"]),
-    #         random.uniform(southWest["lng"], northEast["lng"]),
-    #     ]
-    #     for _ in range(1000)
-    # ]
-
-    red_coords = [
-        [
-            random.uniform(southWest["lat"], northEast["lat"]),
-            random.uniform(southWest["lng"], northEast["lng"]),
-        ]
-        for _ in range(10)
-    ]
     list_of_blue_points = load_model(query)
-    print(checkbox_checked)
     if checkbox_checked == "true":
-        return jsonify(query=query, blue_coords=random.sample(list_of_blue_points, min(1000, len(list_of_blue_points))), red_coords=red_coords), 200
+        return jsonify(query=query, blue_coords=random.sample(list_of_blue_points, min(1000, len(list_of_blue_points)))), 200
     else: 
-        return jsonify(query=query, blue_coords=list_of_blue_points, red_coords=red_coords), 200
+        return jsonify(query=query, blue_coords=list_of_blue_points), 200
     
 if __name__ == "__main__":
     app.run(host="localhost", port=8080, debug=True)

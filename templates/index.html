@@ -152,15 +152,12 @@
 
             // Display loading message
             document.getElementById("loading-message").style.display = "block";
-            var center = map.getCenter();
-            var coordinates = [center.lat, center.lng];
             try {
                 const response = await fetch(`/classified-points?query=${query}&limitPointsBool=${limitPointsBool}`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(coordinates),
+                    }
                 });
 
                 if (!response.ok) {
