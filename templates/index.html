@@ -176,7 +176,7 @@
                         // Create a heatmap layer and add it to the map
                         heatmapLayer = new L.heatLayer(heatmapData, {
                             radius: 25,
-                            blur: 15,               // Adds blur to the heatmap
+                            blur: 10,               // Adds blur to the heatmap
                             maxZoom: 18,            // Restricts the heatmap to a maximum zoom level
                             max: 1.0,               // Maximum intensity value in the heatmap
                             gradient: {             // Custom gradient colors
@@ -184,24 +184,6 @@
                                 1.0: 'red'
                             }
                         }).addTo(map);
-
-                        if (scatterplotLayer) {
-                            map.removeLayer(scatterplotLayer);
-                        }
-
-                        scatterplotLayer = L.layerGroup();
-
-                        data.blue_coords.forEach(function (coord) {
-                            var marker = L.marker(coord, {
-                                icon: L.divIcon({
-                                    className: "blue-marker",
-                                    html: '<div style="width: 4px; height: 4px; background-color: #0033FF; border-radius: 50%;"></div>',
-                                }),
-                            });
-                            scatterplotLayer.addLayer(marker);
-                        });
-
-                        scatterplotLayer.addTo(map);
 
                         // Using the default red icon
                         var redIcon = L.icon({
@@ -221,7 +203,6 @@
                     })
                     .catch((error) => console.error("Error:", error));
             }
-           
         }
         function toggleHeatmap() {
             if (heatmapLayer) {

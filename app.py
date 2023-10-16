@@ -48,15 +48,11 @@ def index():
     return render_template("index.html")
 
 
-def get_coordinates():
-    return [random.uniform(-90, 90), random.uniform(-180, 180)]
-
 
 @app.route("/classified-points", methods=["POST"])
 def classified_points():
     query = request.args.get("query")
     checkbox_checked = request.args.get("limitPointsBool")
-    coordinates = request.json
     list_of_blue_points = load_model(query)
     if checkbox_checked == "true":
         return jsonify(query=query, blue_coords=random.sample(list_of_blue_points, min(1000, len(list_of_blue_points)))), 200
