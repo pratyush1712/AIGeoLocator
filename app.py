@@ -61,13 +61,13 @@ def classified_points():
     southWest = coordinates["southWest"]
     northEast = coordinates["northEast"]
 
-    blue_coords = [
-        [
-            random.uniform(southWest["lat"], northEast["lat"]),
-            random.uniform(southWest["lng"], northEast["lng"]),
-        ]
-        for _ in range(1000)
-    ]
+    # blue_coords = [
+    #     [
+    #         random.uniform(southWest["lat"], northEast["lat"]),
+    #         random.uniform(southWest["lng"], northEast["lng"]),
+    #     ]
+    #     for _ in range(1000)
+    # ]
 
     red_coords = [
         [
@@ -79,7 +79,7 @@ def classified_points():
     list_of_blue_points = load_model(query)
     print(checkbox_checked)
     if checkbox_checked == "true":
-        return jsonify(query=query, blue_coords=random.sample(list_of_blue_points, min(5, len(list_of_blue_points))), red_coords=red_coords), 200
+        return jsonify(query=query, blue_coords=random.sample(list_of_blue_points, min(1000, len(list_of_blue_points))), red_coords=red_coords), 200
     else: 
         return jsonify(query=query, blue_coords=list_of_blue_points, red_coords=red_coords), 200
 if __name__ == "__main__":

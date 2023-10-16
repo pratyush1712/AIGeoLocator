@@ -84,13 +84,16 @@
 
 <body>
     <h1>GRAFT Demo</h1>
-    <form onsubmit="sendRequest(event)">
+    <form onsubmit="sendRequest(event)" style="display: flex; align-items: center;">
         <input type="text" id="userInput" name="userInput" placeholder="Query" required autocomplete="off" />
        <div style="display: flex; align-items: center;">
             <input type="checkbox" id="limitPoints" name="limitPoints" value="Limit number of points" style="vertical-align: middle;">
             <label for="limitPoints" style="margin-left: 5px; white-space: nowrap; vertical-align: middle;">Limit number of points</label>
         </div>
-        <button type="submit">Submit</button>
+        <div style="display: flex; align-items: center; flex-direction: row;">
+            <button type="submit" style="width: 100%">Submit</button>
+            <button onclick="resetPage()" style="width: 70%; background-color: #cc3333; margin-left: 8px;">Reset</button>
+        </div>
     </form>
 
     <!-- Create a div to hold the map -->
@@ -216,6 +219,10 @@
                     .catch((error) => console.error("Error:", error));
             }
             resetDrawControls();
+        }
+        function resetPage() {
+            // Reload the page to reset it to its original state
+            location.reload();
         }
     </script>
 </body>
