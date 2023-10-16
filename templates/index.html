@@ -87,9 +87,12 @@
     <h1>GRAFT Demo</h1>
     <form onsubmit="sendRequest(event)" style="display: flex; align-items: center;">
         <input type="text" id="userInput" name="userInput" placeholder="Query" required autocomplete="off" />
-       <div style="display: flex; align-items: center;">
-            <input type="checkbox" id="limitPoints" name="limitPoints" value="Limit number of points" style="vertical-align: middle;">
-            <label for="limitPoints" style="margin-left: 5px; white-space: nowrap; vertical-align: middle;">Limit number of points</label>
+        <div style="display: flex; align-items: center;">
+            <input type="checkbox" id="limitPoints" name="limitPoints" value="Limit number of points"
+                style="vertical-align: middle;">
+            <label for="limitPoints"
+                style="margin-left: 5px; white-space: nowrap; vertical-align: middle;">Limit number of
+                points</label>
         </div>
         <div style="display: flex; align-items: center; flex-direction: row;">
             <button type="submit" style="width: 100%">Submit</button>
@@ -102,6 +105,12 @@
         <div id="map"></div>
     </div>
 
+    <!-- Confidence display container -->
+    <div id="confidence-container">
+        <h3>Confidence Values</h3>
+        <div id="confidence-values"></div>
+    </div>
+
     <div style="display: flex; justify-content: space-around; margin-top: 20px;">
         <button onclick="toggleHeatmap()">Toggle Heatmap</button>
     </div>
@@ -111,7 +120,7 @@
             attribution:
                 '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
-        
+
         var drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
 
@@ -132,7 +141,7 @@
         });
         map.addControl(drawControl);
 
-        var heatmapLayer; 
+        var heatmapLayer;
 
         function sendRequest(e) {
             console.log("called");
@@ -154,33 +163,35 @@
                 };
 
                 fetch(`/classified-points?query=${query}&limitPointsBool=${limitPointsBool}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(coordinates),
-                })
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(coordinates),
+                    })
                     .then((response) => response.json())
                     .then((data) => {
                         map.eachLayer(function (layer) {
                             if (layer instanceof L.Marker) {
                                 map.removeLayer(layer);
                             }
-                          
+
                         });
                         console.log(data);
                         var heatmapData = data.blue_coords.map(function (point) {
-                            return [point[0], point[1]];  // Extracting lat and lng values
+                            return [point[0], point[1]]; // Extracting lat and lng values
                         });
-
                         // Create a heatmap layer and add it to the map
-                        heatmapLayer = new L.heatLayer(heatmapData, {
-                            radius: 25,
-                            blur: 10,               // Adds blur to the heatmap
-                            maxZoom: 18,            // Restricts the heatmap to a maximum zoom level
-                            max: 1.0,               // Maximum intensity value in the heatmap
-                            gradient: {             // Custom gradient colors
-                                0.0: 'yellow',
+                        heatmapLayer = new L.heatLayer(heatmapData, value = data.confidences, {
+                            radius: 2,
+                            blur: 0, // Adds blur to the heatmap
+                            maxZoom: 18, // Restricts the heatmap to a maximum zoom level
+                            max: 1.0, // Maximum intensity value in the heatmap
+                            gradient: {
+                                0.92: 'blue',
+                                0.94: 'green',
+                                0.96: 'yellow',
+                                0.98: 'orange',
                                 1.0: 'red'
                             }
                         }).addTo(map);
@@ -198,12 +209,15 @@
 
                         // Loop through each coordinate in red_coords and add a marker to the map
                         data.red_coords.forEach((coord) => {
-                            L.marker([coord[0], coord[1]], { icon: redIcon }).addTo(map);
+                            L.marker([coord[0], coord[1]], {
+                                icon: redIcon
+                            }).addTo(map);
                         });
                     })
                     .catch((error) => console.error("Error:", error));
             }
         }
+
         function toggleHeatmap() {
             if (heatmapLayer) {
                 if (!map.hasLayer(heatmapLayer)) {
