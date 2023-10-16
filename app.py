@@ -36,7 +36,7 @@ def load_model(query):
 
     thresh = 0.05
     condition = classprob[:, 0] > thresh
-
+    
     filtered_locs = locs[condition]
     swapped_points = filtered_locs[:, [1, 0]]
     list_of_swapped_points = swapped_points.tolist()
@@ -82,5 +82,6 @@ def classified_points():
         return jsonify(query=query, blue_coords=random.sample(list_of_blue_points, min(1000, len(list_of_blue_points))), red_coords=red_coords), 200
     else: 
         return jsonify(query=query, blue_coords=list_of_blue_points, red_coords=red_coords), 200
+    
 if __name__ == "__main__":
     app.run(host="localhost", port=8080, debug=True)

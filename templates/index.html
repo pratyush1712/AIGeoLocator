@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
     <style>
         body {
@@ -79,6 +80,11 @@
             height: 100%;
             width: 100%;
         }
+
+        #loading-message {
+            display: none;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -86,7 +92,7 @@
     <h1>GRAFT Demo</h1>
     <form onsubmit="sendRequest(event)" style="display: flex; align-items: center;">
         <input type="text" id="userInput" name="userInput" placeholder="Query" required autocomplete="off" />
-       <div style="display: flex; align-items: center;">
+        <div style="display: flex; align-items: center;">
             <input type="checkbox" id="limitPoints" name="limitPoints" value="Limit number of points" style="vertical-align: middle;">
             <label for="limitPoints" style="margin-left: 5px; white-space: nowrap; vertical-align: middle;">Limit number of points</label>
         </div>
@@ -101,6 +107,14 @@
         <div id="map"></div>
     </div>
 
+    <div id="loading-message">
+        Loading... Please wait.
+    </div>
+
+    <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+        <button onclick="toggleHeatmap()">Show Heatmap</button>
+    </div>
+
     <script>
         var map = L.map("map").setView([42.4072, -71.3824], 8);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -113,7 +127,7 @@
 
         var drawControl = new L.Control.Draw({
             draw: {
-                rectangle: true,
+                rectangle: false,
                 polyline: false,
                 polygon: false,
                 circle: false,
@@ -123,103 +137,97 @@
             edit: {
                 featureGroup: drawnItems,
                 edit: false,
-                remove: true,
+                remove: false,
             },
         });
         map.addControl(drawControl);
 
-        var rectangleDrawn = false;
+        var heatmapLayer;
 
-        map.on("draw:created", function (e) {
-            if (!rectangleDrawn) {
-                var type = e.layerType;
-                var layer = e.layer;
-
-                if (type === "rectangle") {
-                    var bounds = layer.getBounds();
-                    console.log("Selected Rectangle Bounds:", bounds);
-                }
-
-                drawnItems.addLayer(layer);
-                rectangleDrawn = true;
-            }
-        });
-
-        map.on("draw:deleted", function (e) {
-            rectangleDrawn = false;
-        });
-
-        function resetDrawControls() {
-            rectangleDrawn = false;
-        }
-
-        function sendRequest(e) {
+        async function sendRequest(e) {
             console.log("called");
             e.preventDefault();
             var query = document.getElementById("userInput").value;
             var limitPointsBool = document.getElementById("limitPoints").checked;
 
-            if (rectangleDrawn) {
-                var rectangle = drawnItems.getLayers()[0];
-                var bounds = rectangle.getBounds();
-                var southWest = bounds.getSouthWest();
-                var northEast = bounds.getNorthEast();
-
-                var coordinates = {
-                    southWest: {
-                        lat: southWest.lat,
-                        lng: southWest.lng,
-                    },
-                    northEast: {
-                        lat: northEast.lat,
-                        lng: northEast.lng,
-                    },
-                };
-
-                fetch(`/classified-points?query=${query}&limitPointsBool=${limitPointsBool}`, {
+            // Display loading message
+            document.getElementById("loading-message").style.display = "block";
+            var center = map.getCenter();
+            var coordinates = [center.lat, center.lng];
+            try {
+                const response = await fetch(`/classified-points?query=${query}&limitPointsBool=${limitPointsBool}`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(coordinates),
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        map.eachLayer(function (layer) {
-                            if (layer instanceof L.Marker) {
-                                map.removeLayer(layer);
-                            }
-                        });
-                        console.log(data);
-                        data.blue_coords.forEach((coord) => {
-                        L.marker(coord, {
-                            icon: L.divIcon({
-                                className: "blue-marker",
-                                html: '<div style="width: 4px; height: 4px; background-color: #0033FF; border-radius: 50%;"></div>',
-                            }),
-                        }).addTo(map);
-                        });
+                });
 
-                        // Using the default red icon
-                        var redIcon = L.icon({
-                            iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-                            iconSize: [25, 41],
-                            iconAnchor: [12, 41],
-                            popupAnchor: [1, -34],
-                        });
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
 
-                        // Log the red_coords data to the console
-                        console.log(data.red_coords);
+                const data = await response.json();
 
-                        // Loop through each coordinate in red_coords and add a marker to the map
-                        data.red_coords.forEach((coord) => {
-                            L.marker([coord[0], coord[1]], { icon: redIcon }).addTo(map);
-                        });
-                    })
-                    .catch((error) => console.error("Error:", error));
+                map.eachLayer(function (layer) {
+                    if (layer instanceof L.Marker) {
+                        map.removeLayer(layer);
+                    }
+                });
+
+                console.log(data);
+
+                var heatmapData = data.blue_coords.map(function (point) {
+                    return [point[0], point[1]]; // Extracting lat and lng values
+                });
+
+                // Create a heatmap layer and add it to the map
+                heatmapLayer = new L.heatLayer(heatmapData, {
+                    radius: 25,
+                    blur: 15, // Adds blur to the heatmap
+                    maxZoom: 18, // Restricts the heatmap to a maximum zoom level
+                    max: 1.0, // Maximum intensity value in the heatmap
+                    gradient: { // Custom gradient colors
+                        0.0: 'yellow',
+                        1.0: 'red'
+                    }
+                }).addTo(map);
+
+                // Using the default red icon
+                // var redIcon = L.icon({
+                //     iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+                //     iconSize: [25, 41],
+                //     iconAnchor: [12, 41],
+                //     popupAnchor: [1, -34],
+                // });
+
+                // Log the red_coords data to the console
+                //console.log(data.red_coords);
+
+                // Loop through each coordinate in red_coords and add a marker to the map
+                // data.red_coords.forEach((coord) => {
+                //     L.marker([coord[0], coord[1]], { icon: redIcon }).addTo(map);
+                // });
+
+            } catch (error) {
+                console.error("Error:", error);
+            } finally {
+                // Hide loading message
+                document.getElementById("loading-message").style.display = "none";
             }
-            resetDrawControls();
         }
+        
+
+        function toggleHeatmap() {
+            if (heatmapLayer) {
+                if (!map.hasLayer(heatmapLayer)) {
+                    heatmapLayer.addTo(map);
+                } else {
+                    map.removeLayer(heatmapLayer);
+                }
+            }
+        }
+
         function resetPage() {
             // Reload the page to reset it to its original state
             location.reload();
