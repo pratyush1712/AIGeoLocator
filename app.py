@@ -12,19 +12,18 @@ import torch
 import random
 
 app = Flask(__name__)
-
+data = np.load("model/MA_2020.npz")
+feats = data["feats"]
+locs = data["locs"]
+device = "cpu"
+textmodel = (
+    CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch16")
+    .eval()
+    .to(device)
+)
+tokenizer = AutoTokenizer.from_pretrained("openai/clip-vit-base-patch16")
 
 def load_model(query):
-    data = np.load("model/MA_2020.npz")
-    feats = data["feats"]
-    locs = data["locs"]
-    device = "cpu"
-    textmodel = (
-        CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch16")
-        .eval()
-        .to(device)
-    )
-    tokenizer = AutoTokenizer.from_pretrained("openai/clip-vit-base-patch16")
     texts = [query]
     with torch.no_grad():
         textsenc = tokenizer(texts, padding=True, return_tensors="pt").to(device)
