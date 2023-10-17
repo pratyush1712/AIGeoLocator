@@ -53,25 +53,29 @@ def index():
 @app.route("/classified-points", methods=["POST"])
 def classified_points():
     query = request.args.get("query")
-    checkbox_checked = request.args.get("limitPointsBool")
+    #checkbox_checked = request.args.get("limitPointsBool")
     list_of_blue_points, confidences = load_model(query)
 
-    if checkbox_checked == "true":
-        # Limit the number of points
-        num_points = min(1000, len(list_of_blue_points))
-        selected_indices = random.sample(range(len(list_of_blue_points)), num_points)
-        selected_points = [list_of_blue_points[i] for i in selected_indices]
-        selected_confidences = [confidences[i] for i in selected_indices]
-
-        return jsonify(
-            query=query,
-            blue_coords=selected_points,
-            confidences=selected_confidences,
-        ), 200
-    else:
-        return jsonify(
+    return jsonify(
             query=query, blue_coords=list_of_blue_points, confidences=confidences
         ), 200
+
+    # if checkbox_checked == "true":
+    #     # Limit the number of points
+    #     num_points = min(1000, len(list_of_blue_points))
+    #     selected_indices = random.sample(range(len(list_of_blue_points)), num_points)
+    #     selected_points = [list_of_blue_points[i] for i in selected_indices]
+    #     selected_confidences = [confidences[i] for i in selected_indices]
+
+    #     return jsonify(
+    #         query=query,
+    #         blue_coords=selected_points,
+    #         confidences=selected_confidences,
+    #     ), 200
+    # else:
+    #     return jsonify(
+    #         query=query, blue_coords=list_of_blue_points, confidences=confidences
+    #     ), 200
 
 
 if __name__ == "__main__":
