@@ -63,10 +63,39 @@
             border-radius: 4px;
             cursor: pointer;
             width: 100%;
+            margin-right: 5px;
+        }
+
+        reset-button {
+            background-color: #cc3333;
+            color: #fff;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-left: 5px;
         }
 
         button:hover {
             background-color: #45a049;
+        }
+
+        reset-button:hover {
+            background-color: #aa0000;}
+
+        toggle-button {
+            background-color: #3498db; 
+            color: #fff;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        toggle-button:hover {
+            background-color: #2980b9;
         }
 
         #container {
@@ -147,9 +176,9 @@
         <input type="text" id="userInput" name="userInput" placeholder="Query" required autocomplete="off" style="width: 100%" />
         <div style="display: flex; align-items: center; flex-direction: row">
             <button type="submit" style="width: 100%">Submit</button>
-            <button onclick="resetPage()" style="width: 100%; background-color: #cc3333; margin-left: 8px">
+            <reset-button onclick="resetPage()">
                 Reset
-            </button>
+            </reset-button>
         </div>
     </form>
 
@@ -161,9 +190,9 @@
     </div>
     <div id="container">
         <div style="display: flex; justify-content: space-around; margin-top: 20px; margin-right: 10px;">
-            <button onclick="toggleHeatmap()" style="background-color: #3498db; height: 30%">
+            <toggle-button onclick="toggleHeatmap()" style="height: 20%">
                 Toggle Probability Density
-            </button>
+            </toggle-button>
         </div>
         <div id="threshold-container" style = "margin-left: 10px;"> Threshold:
             <input type="range" id="threshold" name="threshold" min="-1" max="1" step="0.01" value="0.05" required>
