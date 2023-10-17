@@ -7,11 +7,13 @@
     <!-- Include Leaflet CSS and JavaScript -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <!-- Include Roboto font from Google Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw"></script>
     <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
     <style>
         body {
@@ -108,6 +110,8 @@
     <div style="display: flex; justify-content: space-around; margin-top: 20px;">
         <button onclick="toggleHeatmap()">Toggle Heatmap</button>
     </div>
+
+    <!-- Add the search control -->
     <script>
         var map = L.map("map").setView([42.4072, -71.3824], 8);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -142,6 +146,10 @@
             e.preventDefault();
             var query = document.getElementById("userInput").value;
             var limitPointsBool = document.getElementById("limitPoints").checked;
+
+            if (heatmapLayer) {
+                map.removeLayer(heatmapLayer);
+            }
 
             if (true) {
 
@@ -186,8 +194,8 @@
                                 0.94: 'green',
                                 0.96: 'yellow',
                                 0.98: 'orange',
-                                1.0: 'red'
-                            }
+                                 1.0: 'red'
+                             }
                         }).addTo(map);
 
                         // Using the default red icon
@@ -226,6 +234,9 @@
             // Reload the page to reset it to its original state
             location.reload();
         }
+
+        // Add the search control
+        L.Control.geocoder().addTo(map);
     </script>
 </body>
 
