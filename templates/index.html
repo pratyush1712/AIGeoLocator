@@ -183,6 +183,9 @@
         let thresholdValue = document.getElementById("thresholdValue");
         let form = document.getElementById("search");
         let slidingTimeout;
+
+        thresholdSlider.disabled = true;
+
         form.addEventListener("submit", sendRequest);
 
         thresholdSlider.addEventListener("input", function () {
@@ -276,10 +279,12 @@
                     setTimeout(function () {
                         document.getElementById("loading-icon").style.display = "none";
                     }, 2000);
+                    thresholdSlider.disabled = false;
                 })
                 .catch((error) => {
                     console.error("Error:", error);
                     document.getElementById("loading-icon").style.display = "none";
+                    thresholdSlider.disabled = false;
                 });
         }
 
@@ -287,8 +292,10 @@
             if (heatmapLayer) {
                 if (!map.hasLayer(heatmapLayer)) {
                     heatmapLayer.addTo(map);
+                    thresholdSlider.disabled = false;
                 } else {
                     map.removeLayer(heatmapLayer);
+                    thresholdSlider.disabled = true;
                 }
             }
         }
