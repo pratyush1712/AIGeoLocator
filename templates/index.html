@@ -37,11 +37,11 @@
             flex-direction: column;
             align-items: center;
             background-color: #fff;
-            padding: 20px;
+            padding: 10px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-            width: 10%;
+            width: 15%;
         }
 
         input {
@@ -96,6 +96,7 @@
             display: flex; /* Add this line */
             align-items: center; /* Add this line */
             justify-content: center; /* Add this line */
+            width: 100%;
         }
         toggle-button:hover {
             background-color: #2980b9;
@@ -104,7 +105,7 @@
         #container {
             display: flex;
             justify-content: space-evenly;
-            width: 40%; /* Adjust the width as needed */
+            width: 60vw; /* Adjust the width as needed */
             margin-top: 10px;
             height: 20%;
         }
@@ -120,9 +121,22 @@
         }
 
         #threshold-container {
-            width: 40%; /* Adjust the width as needed */
+            width: 30%; /* Adjust the width as needed */
             height: 65%;
-            padding: 10px;
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #k-container {
+            width: 30%; /* Adjust the width as needed */
+            height: 65%;
+            padding: 15px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -192,14 +206,18 @@
             <div id="map"></div>
     </div>
     <div id="container">
-        <div style="display: flex; justify-content: space-around; margin-top: 20px; margin-right: 10px;">
+        <div id="threshold-container"> Threshold [-1 to 1]
+            <input type="range" id="threshold" name="threshold" min="-1" max="1" step="0.01" value="0.05" required>
+            <output for="threshold" id="thresholdValue">0.05</output>
+        </div>
+        <div style = "margin-top: 20px; margin-right: 15px">
             <toggle-button onclick="toggleHeatmap()" style="height: 20%">
                 Toggle Probability Density
             </toggle-button>
         </div>
-        <div id="threshold-container" style = "margin-left: 10px;"> Threshold:
-            <input type="range" id="threshold" name="threshold" min="-1" max="1" step="0.01" value="0.05" required>
-            <output for="threshold" id="thresholdValue">0.05</output>
+        <div id="k-container"> Number of Top Matches [0 to 200]
+            <input type="range" id="k" name="k" min="0" max="200" step="1" value="10" required>
+            <output for="k" id="kValue">10</output>
         </div>
     </div>
 
@@ -235,10 +253,14 @@
 
         let thresholdSlider = document.getElementById("threshold");
         let thresholdValue = document.getElementById("thresholdValue");
+        let kSlider = document.getElementById("k");
+        let kValue = document.getElementById("kValue");
+
         let form = document.getElementById("search");
         let slidingTimeout;
 
         thresholdSlider.disabled = true;
+        kSlider.disabled = true;
 
         form.addEventListener("submit", sendRequest);
 
@@ -256,11 +278,26 @@
             }, 1000);
         });
 
+        kSlider.addEventListener("input", function () {
+            kValue.textContent = this.value;
+        });
+
+        kSlider.addEventListener("change", function () {
+            if (slidingTimeout) {
+                clearTimeout(slidingTimeout);
+            }
+
+            slidingTimeout = setTimeout(function () {
+                sendRequest();
+            }, 1000);
+        });
+
         function sendRequest(e) {
             if (e) e.preventDefault();
             document.getElementById("loading-icon").style.display = "flex";
             var query = document.getElementById("userInput").value;
             var threshold = document.getElementById("threshold").value;
+            var k = document.getElementById("k").value;
             console.log("Query: " + query);
             console.log("Threshold: " + threshold);
             if (heatmapLayer) {
@@ -279,6 +316,7 @@
             };
 
             var thresh_arg = threshold !== "" ? `&thresh=${threshold}` : "";
+            var k_arg = k !== "" ? `&k=${k}` : "";
             fetch(`/classified-points?query=${query}${thresh_arg}`, {
                 method: "POST",
                 headers: {
@@ -334,11 +372,13 @@
                         document.getElementById("loading-icon").style.display = "none";
                     }, 2000);
                     thresholdSlider.disabled = false;
+                    kSlider.disabled = false;
                 })
                 .catch((error) => {
                     console.error("Error:", error);
                     document.getElementById("loading-icon").style.display = "none";
                     thresholdSlider.disabled = false;
+                    kSlider.disabled = false;
                 });
         }
 
@@ -347,9 +387,11 @@
                 if (!map.hasLayer(heatmapLayer)) {
                     heatmapLayer.addTo(map);
                     thresholdSlider.disabled = false;
+                    kSlider.disabled = false;
                 } else {
                     map.removeLayer(heatmapLayer);
                     thresholdSlider.disabled = true;
+                    kSlider.disabled = true;
                 }
             }
         }
