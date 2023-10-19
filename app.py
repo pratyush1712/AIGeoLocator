@@ -67,6 +67,9 @@ def classified_points():
     cache.set(cache_key, [list_of_blue_points, top_locs], timeout=300)
     return make_response(list_of_blue_points, top_locs, status_code=200)
 
+@app.route("/health")
+def health():
+    return "OK"
 
 if __name__ == "__main__":
     feats, locs, device, textmodel, tokenizer = load_model()
