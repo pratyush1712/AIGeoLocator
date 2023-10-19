@@ -117,17 +117,17 @@
         }
 
         #map-container {
-            height: 60vh;
-            width: 60vw;
+            height: 90vh;
+            width: 80vw;
             background-color: #fff;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             position: relative;
         }
 
         #threshold-container {
-            width: 30%;
+            width: 80%;
             /* Adjust the width as needed */
             height: 65%;
             padding: 15px;
@@ -138,10 +138,11 @@
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 10px;
         }
 
         #k-container {
-            width: 30%;
+            width: 80%;
             /* Adjust the width as needed */
             height: 65%;
             padding: 15px;
@@ -152,6 +153,7 @@
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 10px;
         }
 
         #map {
@@ -205,43 +207,51 @@
 </head>
 
 <body>
-    <h1>GRAFT Demo</h1>
-    <form id="search" style="display: flex; align-items: center">
-        <input type="text" id="userInput" name="userInput" placeholder="Query" required autocomplete="off"
-            style="width: 100%" />
-        <div style="display: flex; align-items: center; flex-direction: row">
-            <button type="submit" style="width: 100%">Submit</button>
-            <reset-button onclick="resetPage()">
-                Reset
-            </reset-button>
-        </div>
-    </form>
+    <div id = "full-container" style = "display: flex; flex-direction: row; align-items: center; margin: 10px;">
+        <div id = "left-container" style = "display: flex; flex-direction: column; align-items: center; margin: 10px;">
+            <h1>GRAFT Demo</h1>
 
-    <div id="loading-icon">
-        <div class="loader"></div>
-    </div>
-    <div id="map-container">
-        <div id="map"></div>
-    </div>
-    <div id="container">
-        <div id="threshold-container"> Threshold [-1 to 1]
-            <input type="range" id="threshold" name="threshold" min="-1" max="1" step="0.01" value="0.05" required>
-            <output for="threshold" id="thresholdValue">0.05</output>
+            <form id="search" style="display: flex; align-items: center; width: 80%">
+                <input type="text" id="userInput" name="userInput" placeholder="Query" required autocomplete="off"
+                    style="width: 100%" />
+                <div style="display: flex; align-items: center; flex-direction: row">
+                    <button type="submit" style="width: 100%">Submit</button>
+                    <reset-button onclick="resetPage()">
+                        Reset
+                    </reset-button>
+                </div>
+            </form>
+
+            <div id="threshold-container"> Threshold [-1 to 1]
+                <input type="range" id="threshold" name="threshold" min="-1" max="1" step="0.01" value="0.05" required>
+                <output for="threshold" id="thresholdValue">0.05</output>
+            </div>
+            
+            <div id="k-container"> Number of Top Matches [0 to 200]
+                <input type="range" id="k" name="k" min="0" max="200" step="1" value="200" required>
+                <output for="k" id="kValue">200</output>
+            </div>
+
+            <div style="margin-right: 40px">
+                <toggle-button style = "margin: 10px" onclick="toggleHeatmap()" style="height: 20%">
+                    Toggle Probability Density
+                </toggle-button>
+            </div>
         </div>
-        <div style="margin-top: 20px; margin-right: 15px">
-            <toggle-button onclick="toggleHeatmap()" style="height: 20%">
-                Toggle Probability Density
-            </toggle-button>
-        </div>
-        <div id="k-container"> Number of Top Matches [0 to 200]
-            <input type="range" id="k" name="k" min="0" max="200" step="1" value="200" required>
-            <output for="k" id="kValue">200</output>
+    
+        
+        <div id="map-container">
+            <div id="map"></div>
+                <div id="loading-icon">
+                <div class="loader"></div>
+            </div>
         </div>
     </div>
+    
 
     <!-- Add the search control -->
     <script>
-        var map = L.map("map").setView([42.4072, -71.3824], 8);
+        var map = L.map("map").setView([42.4072, -71.3824], 9);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution:
                 '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -311,7 +321,7 @@
         });
 
         function resetZoom() {
-            map.setView([42.4072, -71.3824], 8);
+            map.setView([42.4072, -71.3824], 9);
         }
 
         var resetZoomControl = L.Control.extend({
