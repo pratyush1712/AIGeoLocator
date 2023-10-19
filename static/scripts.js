@@ -1,4 +1,4 @@
-var map = L.map("map").setView([42.4072, -71.3824], 8);
+var map = L.map("map").setView([42.4072, -71.3824], 9);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
@@ -66,6 +66,26 @@ kSlider.addEventListener("change", function () {
     }, 1000);
 });
 
+function resetZoom() {
+    map.setView([42.4072, -71.3824], 9);
+}
+
+var resetZoomControl = L.Control.extend({
+    options: {
+        position: "topright",
+    },
+
+    onAdd: function () {
+        var container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
+        container.innerHTML =
+            '<button onclick="resetZoom()" style="background-color: #ffffff; color: #000000;"}">Reset Zoom</button>';
+        return container;
+    },
+});
+
+// Add the custom control to the map
+map.addControl(new resetZoomControl());
+
 function sendRequest(e) {
     if (e) e.preventDefault();
     document.getElementById("loading-icon").style.display = "flex";
@@ -125,7 +145,9 @@ function sendRequest(e) {
             data.top_locs.forEach((loc) => {
                 var redIcon = L.divIcon({
                     className: "custom-icon",
-                    html: `<div class="marker-label">${loc[2]}</div><img src="https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png" style="display:block;"/>`,
+                    html: `<div class="marker-label">${
+            loc[2] + 1
+          }</div><img src="https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png" style="display:block;"/>`,
                     iconSize: [25, 41],
                     iconAnchor: [12, 41],
                     popupAnchor: [0, -20],
