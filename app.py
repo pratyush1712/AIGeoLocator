@@ -1,39 +1,17 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, render_template
 import numpy as np
 import torch.nn.functional as F
-from transformers import AutoTokenizer, CLIPTextModelWithProjection
 from flask_caching import Cache
 import torch
+from utils import make_response, load_model, format_loc
 
 app = Flask(__name__)
-cache = Cache(app, config={"CACHE_TYPE": "simple"})
-
-
-def make_response(blue_coords, top_locs, status_code=200, error=None):
-    if error is not None:
-        return jsonify(error=error), status_code
-    return (
-        jsonify(blue_coords=blue_coords, top_locs=top_locs),
-        status_code,
-    )
-
-
-def load_model():
-    data = np.load("model/MA_2020.npz")
-    feats = data["feats"]
-    locs = data["locs"]
-    device = "cpu"
-    textmodel = (
-        CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch16")
-        .eval()
-        .to(device)
-    )
-    tokenizer = AutoTokenizer.from_pretrained("openai/clip-vit-base-patch16")
-    return feats, locs, device, textmodel, tokenizer
+config = {"DEBUG": True, "CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 300}
+app.config.from_mapping(config)
+cache = Cache(app)
 
 
 def classify(query, thresh=0.05):
-    print("function called")
     texts = [query]
     with torch.no_grad():
         textsenc = tokenizer(texts, padding=True, return_tensors="pt").to(device)
@@ -48,14 +26,9 @@ def classify(query, thresh=0.05):
     top_locs = locs[np.argsort(classprob[:, -1])[::-1][:200]]
     tuples_list = []
 
-    for index, po in enumerate(top_locs):
-        key = (
-            str(int(np.round(po[0] * 100000)))
-            + "_"
-            + str(int(np.round((po[1]) * 100000)))
-            + ".jpg"
-        )
-        tuples_list.append([app.config["image_dict"][key], po.tolist(), index])
+    for index, loc in enumerate(top_locs):
+        key = format_loc(loc)
+        tuples_list.append([app.config["image_dict"][key], loc.tolist(), index])
     return list_of_swapped_points, tuples_list
 
 
@@ -74,16 +47,15 @@ def classified_points():
     cache_key = f"{query}_{thresh}"
     cached_response = cache.get(cache_key)
     if cached_response:
-        print("Cache hit")
+        print("Serving from cache")
         if max_points is not None:
-            print("Max points: " + str(max_points))
             return make_response(
                 cached_response[0],
                 cached_response[1][: int(max_points)],
                 status_code=200,
             )
         return make_response(cached_response[0], cached_response[1], status_code=200)
-    print("Cache miss")
+
     if thresh == None:
         list_of_blue_points, top_locs = classify(query)
     else:
@@ -105,5 +77,4 @@ if __name__ == "__main__":
             key = line.split("/")[-1]
             image_dict[key] = line
     app.config["image_dict"] = image_dict
-
     app.run(host="localhost", port=8080, debug=True)

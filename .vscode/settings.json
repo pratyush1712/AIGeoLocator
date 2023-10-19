@@ -2,5 +2,15 @@
   "editor.formatOnPaste": true,
   "editor.formatOnSave": true,
   "notebook.formatOnSave.enabled": true,
-  "editor.defaultFormatter": "ms-python.black-formatter"
+  "editor.defaultFormatter": "ms-python.black-formatter",
+  "html.format.indentInnerHtml": false,
+  "html.format.indentHandlebars": true,
+  "html.format.templating": true,
+  "css.format.enable": true,
+  "editor.autoIndent": "full",
+  "editor.indentSize": "tabSize",
+  "editor.tabSize": 4,
+  "editor.detectIndentation": false,
+  "javascript.format.enable": true,
+  "typescriptHero.imports.organizeOnSave": true
 }
