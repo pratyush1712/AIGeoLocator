@@ -1,6 +1,3 @@
-import io
-import os
-import requests
 from flask import jsonify
 import numpy as np
 from transformers import AutoTokenizer, CLIPTextModelWithProjection
@@ -17,11 +14,7 @@ def make_response(status_code=200, **kwargs):
 
 
 def load_model(file_path="model/MA_2020.npz"):
-    if os.environ.get("FLASK_ENV") == "development":
-        data = np.load(file_path)
-    else:
-        response = requests.get(os.environ.get("DATA_SOURCE"))
-        data = np.load(io.BytesIO(response.content))
+    data = np.load(file_path)
     feats = data["feats"]
     locs = data["locs"]
     device = "cpu"
@@ -36,16 +29,8 @@ def load_model(file_path="model/MA_2020.npz"):
 
 def load_images(file_path="model/data.txt"):
     image_dict = dict()
-    if os.environ.get("FLASK_ENV") == "development":
-        with open(file_path, "r") as f:
-            for line in f:
-                line = line.strip()
-                key = line.split("/")[-1]
-                image_dict[key] = line
-    else:
-        response = requests.get(os.environ.get("IMAGE_SOURCE") + "filelist_MA_2020.txt")
-        file_content = io.StringIO(response.text)  # Convert bytes response to string
-        for line in file_content:
+    with open(file_path, "r") as f:
+        for line in f:
             line = line.strip()
             key = line.split("/")[-1]
             image_dict[key] = line
