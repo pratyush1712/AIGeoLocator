@@ -1,3 +1,5 @@
+import os
+
 SELF = "'self'"
 UNPKG = "https://unpkg.com"
 GOOGLE_FONTS = "https://fonts.googleapis.com"
@@ -10,6 +12,7 @@ config = {
     "DEBUG": True,
     "CACHE_TYPE": "SimpleCache",
     "CACHE_DEFAULT_TIMEOUT": 300,
+    "FLASK_ENV": os.environ.get("FLASK_ENV", "development"),
 }
 
 csp = {

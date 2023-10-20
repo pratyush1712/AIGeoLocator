@@ -12,10 +12,11 @@ import torch
 
 # Config Imports
 from config import config, csp
+from dotenv import load_dotenv, find_dotenv
 
 # ------------------Flask App Configuration------------------
 app = Flask(__name__)
-env = app.config["ENV"]
+load_dotenv(find_dotenv())
 CORS(app)
 app.config.from_mapping(config)
 cache = Cache(app)
@@ -98,11 +99,6 @@ def classified_points():
 
 
 if __name__ == "__main__":
-    if env == "development":
-        file_path = "model/"
-    elif env == "production":
-        file_path = "etc/secrets/"
-
-    feats, locs, device, textmodel, tokenizer = load_model(file_path + "MA_2020.npz")
-    app.config["image_dict"] = load_images(file_path + "data.txt")
+    feats, locs, device, textmodel, tokenizer = load_model()
+    app.config["image_dict"] = load_images()
     app.run(host="0.0.0.0", port=8080, debug=True)

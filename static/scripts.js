@@ -150,8 +150,7 @@ function sendRequest(e) {
                     icon: redIcon,
                 }).addTo(map);
 
-                var imageUrl = `https://research.cs.cornell.edu/caco/data/graft/MA/${loc[0]}`;
-                var popupContent = `<img src="${imageUrl}" class="small-image" />`;
+                var popupContent = `<img src="${loc[0]}" class="small-image" />`;
                 marker.bindPopup(popupContent, {
                     minWidth: "fit-content",
                     minHeight: "fit-content",
