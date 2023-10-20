@@ -13,8 +13,8 @@ def make_response(status_code=200, **kwargs):
     return jsonify(**kwargs), status_code
 
 
-def load_model():
-    data = np.load("model/MA_2020.npz")
+def load_model(file_path="model/MA_2020.npz"):
+    data = np.load(file_path)
     feats = data["feats"]
     locs = data["locs"]
     device = "cpu"
@@ -27,9 +27,9 @@ def load_model():
     return feats, locs, device, textmodel, tokenizer
 
 
-def load_images():
+def load_images(file_path="model/data.txt"):
     image_dict = dict()
-    with open("model/data.txt", "r") as f:
+    with open(file_path, "r") as f:
         for line in f:
             line = line.strip()
             key = line.split("/")[-1]
