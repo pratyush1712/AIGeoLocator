@@ -53,30 +53,21 @@ This guide provides detailed instructions on how to set up, run, and deploy the 
    - The application will be accessible at `http://<server-ip>:8000/`.
 
 2. ### Docker
-    If you're using Docker for deployment, follow the steps below:
+   If you're using Docker for deployment, follow the steps below:
 
-    1. For Local Testing:
-        
-        - Build the Docker image for local testing using the following command:
-            ```bash
-            docker build --build-arg FLASK_ENV=development -t graft .
-            ```
-            This command sets the Flask environment to development mode and builds the Docker image with the tag graft.
-
-        - Run the Docker container using the following command:
-            ```bash
-            docker run -p 8080:8080 graft
-            ```
-            This command runs the Docker container and maps port 8080 of the container to port 8080 of the host machine. The application will be accessible at `http://localhost:8080/`.
-    2. For Production:
-
-        - Build the Docker image for local testing using the following command:
-            ```bash
-            docker build -t graft .
-            ```
-            This command sets the Flask environment to default production mode and builds the Docker image with the tag graft.
-        - Run the Docker container using the following command:
-            ```bash
-            docker run -p 8080:8080 graft
-            ```
-            This command runs the Docker container and maps port 8080 of the container to port 8080 of the host machine. The application will be accessible at `http://localhost:8080/`.
+   #### Build the image:
+   - For Local Testing:   
+        ```bash
+        docker build --build-arg FLASK_ENV=development -t graft .
+        ```
+        This command sets the Flask environment to development mode and builds the Docker image with the tag graft.
+   - For Production set up
+        ```bash
+        docker build -t graft .
+        ```
+        This command sets the Flask environment to the default production mode and builds the Docker image with the tag graft.
+   #### Spin up a container
+      ```bash
+      docker run -p 8080:8080 graft --name prod
+      ```
+      This command spins up a container with the name prod.
