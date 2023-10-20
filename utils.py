@@ -3,13 +3,14 @@ import numpy as np
 from transformers import AutoTokenizer, CLIPTextModelWithProjection
 
 
-def make_response(blue_coords, top_locs, status_code=200, error=None):
-    if error is not None:
-        return jsonify(error=error), status_code
-    return (
-        jsonify(blue_coords=blue_coords, top_locs=top_locs),
-        status_code,
-    )
+def make_response(status_code=200, **kwargs):
+    if not kwargs:
+        return jsonify(), status_code
+
+    if "error" in kwargs:
+        return jsonify(error=kwargs["error"]), status_code
+
+    return jsonify(**kwargs), status_code
 
 
 def load_model():
@@ -24,6 +25,16 @@ def load_model():
     )
     tokenizer = AutoTokenizer.from_pretrained("openai/clip-vit-base-patch16")
     return feats, locs, device, textmodel, tokenizer
+
+
+def load_images():
+    image_dict = dict()
+    with open("model/data.txt", "r") as f:
+        for line in f:
+            line = line.strip()
+            key = line.split("/")[-1]
+            image_dict[key] = line
+    return image_dict
 
 
 def format_loc(loc):

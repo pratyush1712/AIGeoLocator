@@ -1,3 +1,4 @@
+console.log("hello");
 var map = L.map("map").setView([42.4072, -71.3824], 9);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -66,6 +67,11 @@ kSlider.addEventListener("change", function () {
     }, 1000);
 });
 
+document
+    .getElementById("toggle-heatmap-btn")
+    .addEventListener("click", toggleHeatmap);
+document.getElementById("reset-btn").addEventListener("click", resetPage);
+
 function resetZoom() {
     map.setView([42.4072, -71.3824], 9);
 }
@@ -78,13 +84,13 @@ var resetZoomControl = L.Control.extend({
     onAdd: function () {
         var container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
         container.innerHTML =
-            '<button onclick="resetZoom()" style="background-color: #ffffff; color: #000000;"}">Reset Zoom</button>';
+            '<button id="reset-zoom">Reset Zoom</button>';
         return container;
     },
 });
 
-// Add the custom control to the map
 map.addControl(new resetZoomControl());
+document.getElementById('reset-zoom').addEventListener('click', resetZoom);
 
 function sendRequest(e) {
     if (e) e.preventDefault();
@@ -96,17 +102,6 @@ function sendRequest(e) {
         map.removeLayer(heatmapLayer);
     }
 
-    var coordinates = {
-        southWest: {
-            lat: 0,
-            lng: 0,
-        },
-        northEast: {
-            lat: 0,
-            lng: 0,
-        },
-    };
-
     var thresh_arg = threshold !== "" ? `&thresh=${threshold}` : "";
     var k_arg = k !== "" ? `&k=${k}` : "";
     fetch(`/classified-points?query=${query}${thresh_arg}${k_arg}`, {
@@ -114,7 +109,6 @@ function sendRequest(e) {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(coordinates),
         })
         .then((response) => response.json())
         .then((data) => {
@@ -147,7 +141,7 @@ function sendRequest(e) {
                     className: "custom-icon",
                     html: `<div class="marker-label">${
             loc[2] + 1
-          }</div><img src="https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png" style="display:block;"/>`,
+          }</div><img src="https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png"/>`,
                     iconSize: [25, 41],
                     iconAnchor: [12, 41],
                     popupAnchor: [0, -20],
