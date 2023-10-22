@@ -1,5 +1,5 @@
 # Flask Imports
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 from flask_caching import Cache
 from flask_talisman import Talisman
 from flask_cors import CORS
@@ -28,6 +28,10 @@ talisman = Talisman(
 
 
 # ------------------Model Config and Helper Functions------------------
+feats, locs, device, textmodel, tokenizer = load_model()
+app.config["image_dict"] = load_images()
+
+
 def classify(query, thresh=0.05):
     with torch.no_grad():
         textsenc = tokenizer([query], padding=True, return_tensors="pt").to(device)
@@ -51,7 +55,7 @@ def classify(query, thresh=0.05):
 # ------------------Flask Status Routes------------------
 @app.route("/health")
 def health():
-    return "OK"
+    return jsonify({"status": "OK"}), 200
 
 
 @app.errorhandler(404)
@@ -99,6 +103,4 @@ def classified_points():
 
 
 if __name__ == "__main__":
-    feats, locs, device, textmodel, tokenizer = load_model()
-    app.config["image_dict"] = load_images()
     app.run(host="0.0.0.0", port=8080, debug=True)
