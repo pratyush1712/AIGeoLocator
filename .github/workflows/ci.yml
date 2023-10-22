@@ -30,6 +30,7 @@ jobs:
           base: ${{ github.head_ref }}
           branch: actions/black
   test:
+    name: Run Unit Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
