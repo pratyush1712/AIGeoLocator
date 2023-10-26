@@ -146,15 +146,17 @@ function sendRequest(e) {
             });
 
             heatmapLayer = new L.heatLayer(heatmapData, (value = data.confidences), {
-                radius: 2,
+                radius: 125,
                 blur: 0,
-                maxZoom: 18,
+                maxZoom: 1,
                 max: 1.0,
+                opacity: 1.0,
+                scaleRadius: true,
                 gradient: {
-                    0.92: "blue",
-                    0.94: "green",
-                    0.96: "yellow",
-                    0.98: "orange",
+                    0.2: "blue",
+                    0.4: "green",
+                    0.6: "yellow",
+                    0.8: "orange",
                     1.0: "red",
                 },
             }).addTo(map);
