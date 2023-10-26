@@ -128,7 +128,6 @@ function sendRequest(e) {
     var k_arg = k !== "" ? `&k=${k}` : "";
     var state_arg = `&state=${state}`;
     fetch(`/classified-points?query=${query}${thresh_arg}${k_arg}${state_arg}`, {
-            method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },

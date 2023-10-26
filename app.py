@@ -96,22 +96,21 @@ def index():
 
 
 @cache.cached(timeout=300)
-@app.route("/classified-points", methods=["POST"])
+@app.route("/classified-points")
 def classified_points():
     query = request.args.get("query")
     thresh = request.args.get("thresh")
     max_points = request.args.get("k")
     state = request.args.get("state")
-    prev_query = session.get('prev_query')
+    prev_query = session.get("prev_query")
     print(f"Previous Query: {prev_query}")
     print(f"Current Query: {query}")
     if prev_query == query:
         thresh = thresh
-    elif thresh is None or prev_query != query :
+    elif thresh is None or prev_query != query:
         thresh = get_threshold_from_query(query)
     thresh = float(thresh)
-
-    session['prev_query'] = query
+    session["prev_query"] = query
 
     # Check for Cache Hit
     cache_key = f"{query}_{thresh}_{state}"
