@@ -70,4 +70,4 @@ def format_loc(loc):
 def get_threshold_from_query(query):
     matched_concept = get_most_similar_concept(query)
     print(f"Matched Concept: {matched_concept}")
-    return matched_concept, concept_thresholds.get(matched_concept, 0.05)
+    return concept_thresholds.get(matched_concept, 0.05)

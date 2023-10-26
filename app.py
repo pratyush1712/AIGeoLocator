@@ -98,7 +98,7 @@ def classified_points():
     thresh = request.args.get("thresh")
     max_points = request.args.get("k")
     state = request.args.get("state")
-    query, thresh = get_threshold_from_query(query)
+    thresh = get_threshold_from_query(query)
 
     # Check for Cache Hit
     cache_key = f"{query}_{thresh}_{state}"
