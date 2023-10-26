@@ -14,7 +14,7 @@ concepts = [
     "concept5",
 ]
 concept_embeddings = model.encode(concepts, convert_to_tensor=True)
-concept_thresholds = {"plant": 0.01, "water": 0.05}
+concept_thresholds = {"plant": 0.16, "water": 0.1}
 
 
 def get_most_similar_concept(query):

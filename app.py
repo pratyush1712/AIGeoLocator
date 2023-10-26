@@ -1,6 +1,6 @@
 # Flask Imports
 import os
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, session
 from flask_caching import Cache
 from flask_talisman import Talisman
 from flask_cors import CORS
@@ -21,8 +21,12 @@ import torch
 from config import config, csp
 from dotenv import load_dotenv, find_dotenv
 
+import secrets
+
 # ------------------Flask App Configuration------------------
 app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)
+
 load_dotenv(find_dotenv())
 CORS(app)
 app.config.from_mapping(config)
@@ -98,9 +102,16 @@ def classified_points():
     thresh = request.args.get("thresh")
     max_points = request.args.get("k")
     state = request.args.get("state")
-    if thresh is None:
+    prev_query = session.get('prev_query')
+    print(f"Previous Query: {prev_query}")
+    print(f"Current Query: {query}")
+    if prev_query == query:
+        thresh = thresh
+    elif thresh is None or prev_query != query :
         thresh = get_threshold_from_query(query)
     thresh = float(thresh)
+
+    session['prev_query'] = query
 
     # Check for Cache Hit
     cache_key = f"{query}_{thresh}_{state}"
