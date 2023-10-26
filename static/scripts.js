@@ -1,8 +1,22 @@
-console.log("hello");
 var map = L.map("map").setView([42.4072, -71.3824], 9);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
+
+const stateCoordinates = {
+    "MIN": [45.6945, -93.9002],
+    "NY": [40.7128, -74.0060],
+    "MA": [42.4072, -71.3824]
+};
+
+const stateDropdown = document.getElementById("stateDropdown");
+stateDropdown.addEventListener('change', function () {
+    const selectedState = this.value;
+    const coords = stateCoordinates[selectedState];
+    if (coords) {
+        map.setView(coords, 9);
+    }
+});
 
 var drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
@@ -73,8 +87,15 @@ document
 document.getElementById("reset-btn").addEventListener("click", resetPage);
 
 function resetZoom() {
-    map.setView([42.4072, -71.3824], 9);
+    const selectedState = stateDropdown.value;
+    const coords = stateCoordinates[selectedState];
+    if (coords) {
+        map.setView(coords, 9);
+    } else {
+        map.setView([42.4072, -71.3824], 9);
+    }
 }
+
 
 var resetZoomControl = L.Control.extend({
     options: {
@@ -98,13 +119,15 @@ function sendRequest(e) {
     var query = document.getElementById("userInput").value;
     var threshold = document.getElementById("threshold").value;
     var k = document.getElementById("k").value;
-    if (heatmapLayer) {
-        map.removeLayer(heatmapLayer);
-    }
+    var state = stateDropdown.value;
+    if (heatmapLayer) map.removeLayer(heatmapLayer);
+
 
     var thresh_arg = threshold !== "" ? `&thresh=${threshold}` : "";
+    if (thresholdSlider.disabled) thresh_arg = "";
     var k_arg = k !== "" ? `&k=${k}` : "";
-    fetch(`/classified-points?query=${query}${thresh_arg}${k_arg}`, {
+    var state_arg = `&state=${state}`;
+    fetch(`/classified-points?query=${query}${thresh_arg}${k_arg}${state_arg}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -168,6 +191,9 @@ function sendRequest(e) {
             document.getElementById("loading-icon").style.display = "none";
             thresholdSlider.disabled = false;
             kSlider.disabled = false;
+            console.log(data.thresh);
+            thresholdSlider.value = data.thresh;
+            thresholdSlider.dispatchEvent(new Event('input'));
         })
         .catch((error) => {
             console.error("Error:", error);

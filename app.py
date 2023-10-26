@@ -1,9 +1,16 @@
 # Flask Imports
+import os
 from flask import Flask, request, render_template, jsonify
 from flask_caching import Cache
 from flask_talisman import Talisman
 from flask_cors import CORS
-from utils import load_images, make_response, load_model, format_loc
+from utils import (
+    load_images,
+    make_response,
+    load_model,
+    format_loc,
+    get_threshold_from_query,
+)
 
 # Model Imports
 import numpy as np
@@ -20,19 +27,27 @@ load_dotenv(find_dotenv())
 CORS(app)
 app.config.from_mapping(config)
 cache = Cache(app)
-talisman = Talisman(
-    app,
-    content_security_policy=csp,
-    content_security_policy_nonce_in=["script-src", "style-src"],
-)
+# talisman = Talisman(
+#     app,
+#     content_security_policy=csp,
+#     content_security_policy_nonce_in=["script-src", "style-src"],
+# )
 
 
 # ------------------Model Config and Helper Functions------------------
-feats, locs, device, textmodel, tokenizer = load_model()
-app.config["image_dict"] = load_images()
+states = ["MA", "NY", "MIN"]
+models = {}
+
+for state in states:
+    models[state] = load_model(state)
+
+app.config["images"] = load_images()
 
 
-def classify(query, thresh=0.05):
+def classify(query, thresh=0.05, state="MA"):
+    print(f"Query: {query}, Threshold: {thresh}, State: {state}")
+    feats, locs, device, textmodel, tokenizer = models[state]
+
     with torch.no_grad():
         textsenc = tokenizer([query], padding=True, return_tensors="pt").to(device)
         class_embeddings = F.normalize(textmodel(**textsenc).text_embeds, dim=-1)
@@ -48,7 +63,8 @@ def classify(query, thresh=0.05):
 
     for index, loc in enumerate(top_locs):
         key = format_loc(loc)
-        tuples_list.append([app.config["image_dict"][key], loc.tolist(), index])
+        img_src = f"{os.environ.get('IMAGE_SOURCE')}{state}/{app.config['images'][key]}"
+        tuples_list.append([img_src, loc.tolist(), index])
     return list_of_swapped_points, tuples_list
 
 
@@ -81,25 +97,32 @@ def classified_points():
     query = request.args.get("query")
     thresh = request.args.get("thresh")
     max_points = request.args.get("k")
+    state = request.args.get("state")
+    query, thresh = get_threshold_from_query(query)
 
     # Check for Cache Hit
-    cache_key = f"{query}_{thresh}"
+    cache_key = f"{query}_{thresh}_{state}"
     cached_response = cache.get(cache_key)
     if cached_response:
         print("Cache Hit")
-        kwargs = {"blue_coords": cached_response[0], "top_locs": cached_response[1]}
+        kwargs = {
+            "thresh": str(thresh),
+            "blue_coords": cached_response[1],
+            "top_locs": cached_response[2],
+        }
         if max_points is not None:
             kwargs["top_locs"] = kwargs["top_locs"][: int(max_points)]
             return make_response(**kwargs, status_code=200)
         return make_response(**kwargs, status_code=200)
 
     # Fetch Results
-    thresh = 0.05 if thresh is None else float(thresh)
-    list_of_blue_points, top_locs = classify(query, thresh)
+    list_of_blue_points, top_locs = classify(query, thresh, state)
 
     # Cache Results and Return
-    cache.set(cache_key, [list_of_blue_points, top_locs], timeout=300)
-    return make_response(blue_coords=list_of_blue_points, top_locs=top_locs)
+    cache.set(cache_key, [thresh, list_of_blue_points, top_locs], timeout=300)
+    return make_response(
+        thresh=thresh, blue_coords=list_of_blue_points, top_locs=top_locs
+    )
 
 
 if __name__ == "__main__":
