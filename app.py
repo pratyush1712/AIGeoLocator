@@ -108,14 +108,14 @@ def classified_points():
     max_points = request.args.get("k")
     state = request.args.get("state")
     prev_query = session.get("prev_query")
-    print(f"Previous Query: {prev_query}")
-    print(f"Current Query: {query}")
-    if prev_query == query:
+    prev_state = session.get("prev_state")
+    if prev_query == query and state == prev_state:
         thresh = thresh
     elif thresh is None or prev_query != query:
         thresh = get_threshold_from_query(query)
     thresh = float(thresh)
     session["prev_query"] = query
+    session["prev_state"] = state
 
     # Check for Cache Hit
     cache_key = f"{query}_{thresh}_{state}"
