@@ -20,19 +20,18 @@
 </head>
 
 <body>
-    <div id="full-container" style="display: flex; flex-direction: row; align-items: center; margin: 20px;">
-        <div id="left-container" style="display: flex; flex-direction: column; align-items: center; margin: 10px;">
-            <h1 style="margin-bottom: 0px;">GRAFT Demo</h1>
+    <div id="full-container">
+        <div id="left-container">
+            <h1>GRAFT Demo</h1>
             <select id="stateDropdown">
                 <option value="MIN" selected>Minnesota</option>
-                <option value="NY" selected>New York</option>
-                <option value="MA" selected>Massachusetts</option>
+                <option value="NY">New York</option>
+                <option value="MA">Massachusetts</option>
             </select>
-            <form id="search" style="display: flex; align-items: center; width: 80%">
-                <input type="text" id="userInput" name="userInput" placeholder="Query" required autocomplete="off"
-                    style="width: 100%" />
-                <div style="display: flex; align-items: center; flex-direction: row">
-                    <button type="submit" style="width: 100%">Submit</button>
+            <form id="search">
+                <input type="text" id="userInput" name="userInput" placeholder="Query" required autocomplete="off" />
+                <div id="submit">
+                    <button id="submit-btn" type="submit">Submit</button>
                     <reset-button id="reset-btn">
                         Reset
                     </reset-button>
@@ -49,13 +48,12 @@
                 <output for="k" id="kValue">200</output>
             </div>
 
-            <div style="margin-right: 40px">
-                <toggle-button id="toggle-heatmap-btn" style="margin: 10px" style="height: 20%">
+            <div id="toggle-container">
+                <toggle-button id="toggle-heatmap-btn">
                     Toggle Probability Density
                 </toggle-button>
             </div>
         </div>
-
 
         <div id="map-container">
             <div id="map"></div>

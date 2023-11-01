@@ -31,15 +31,15 @@ load_dotenv(find_dotenv())
 CORS(app)
 app.config.from_mapping(config)
 cache = Cache(app)
-# talisman = Talisman(
-#     app,
-#     content_security_policy=csp,
-#     content_security_policy_nonce_in=["script-src", "style-src"],
-# )
+talisman = Talisman(
+    app,
+    content_security_policy=csp,
+    content_security_policy_nonce_in=["script-src", "style-src"],
+)
 
 
 # ------------------Model Config and Helper Functions------------------
-states = ["MA", "NY", "MIN"]
+states = ["MA", "NY"]
 models = {}
 
 for state in states:
@@ -67,7 +67,12 @@ def classify(query, thresh=0.05, state="MA"):
 
     for index, loc in enumerate(top_locs):
         key = format_loc(loc)
-        img_src = f"{os.environ.get('IMAGE_SOURCE')}{state}/{app.config['images'][key]}"
+        try:
+            img_src = (
+                f"{os.environ.get('IMAGE_SOURCE')}{state}/{app.config['images'][key]}"
+            )
+        except KeyError:
+            img_src = "data:image/jpeg;base64,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"
         tuples_list.append([img_src, loc.tolist(), index])
     return list_of_swapped_points, tuples_list
 
