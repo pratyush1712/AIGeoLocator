@@ -5,7 +5,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 const stateCoordinates = {
     "MIN": [45.6945, -93.9002],
-    "NY": [40.7128, -74.0060],
+    "NY": [43.000000, -75.000],
     "MA": [42.4072, -71.3824]
 };
 
@@ -14,7 +14,7 @@ stateDropdown.addEventListener('change', function () {
     const selectedState = this.value;
     const coords = stateCoordinates[selectedState];
     if (coords) {
-        map.setView(coords, 9);
+        map.setView(coords, 8);
     }
 });
 
@@ -90,7 +90,7 @@ function resetZoom() {
     const selectedState = stateDropdown.value;
     const coords = stateCoordinates[selectedState];
     if (coords) {
-        map.setView(coords, 9);
+        map.setView(coords, 8);
     } else {
         map.setView([42.4072, -71.3824], 9);
     }
