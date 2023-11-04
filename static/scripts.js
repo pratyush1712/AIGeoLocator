@@ -1,11 +1,11 @@
-var map = L.map("map").setView([42.4072, -71.3824], 9);
+var map = L.map("map").setView([42.4072, -71.3824], 8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
 const stateCoordinates = {
     "MIN": [45.6945, -93.9002],
-    "NY": [40.7128, -74.0060],
+    "NY": [43.0, -75.0],
     "MA": [42.4072, -71.3824]
 };
 
@@ -14,7 +14,7 @@ stateDropdown.addEventListener('change', function () {
     const selectedState = this.value;
     const coords = stateCoordinates[selectedState];
     if (coords) {
-        map.setView(coords, 9);
+        map.setView(coords, 8);
     }
 });
 
@@ -90,9 +90,9 @@ function resetZoom() {
     const selectedState = stateDropdown.value;
     const coords = stateCoordinates[selectedState];
     if (coords) {
-        map.setView(coords, 9);
+        map.setView(coords, 8);
     } else {
-        map.setView([42.4072, -71.3824], 9);
+        map.setView([42.4072, -71.3824], 8);
     }
 }
 
@@ -160,21 +160,21 @@ function sendRequest(e) {
                 },
             }).addTo(map);
 
-            data.top_locs.forEach((loc) => {
+            data.top_locs.forEach((loc, index) => {
                 var redIcon = L.divIcon({
                     className: "custom-icon",
                     html: `<div class="marker-label">${
-            loc[2] + 1
+            index + 1
           }</div><img src="https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png"/>`,
                     iconSize: [25, 41],
                     iconAnchor: [12, 41],
                     popupAnchor: [0, -20],
                 });
-                var marker = L.marker([loc[1][1], loc[1][0]], {
+                var marker = L.marker([loc.lat, loc.long], {
                     icon: redIcon,
                 }).addTo(map);
 
-                var popupContent = `<img src="${loc[0]}" class="small-image" />`;
+                var popupContent = `<img src="${loc.img}" class="small-image" />`;
                 marker.bindPopup(popupContent, {
                     minWidth: "fit-content",
                     minHeight: "fit-content",

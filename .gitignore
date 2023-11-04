@@ -10,3 +10,4 @@ build/
 .env
 *.npz
 *.txt
+*.npy
