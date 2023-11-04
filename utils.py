@@ -1,4 +1,3 @@
-import gc
 from flask import jsonify
 import numpy as np
 from transformers import AutoTokenizer, CLIPTextModelWithProjection
@@ -35,31 +34,12 @@ def make_response(status_code=200, **kwargs):
     return jsonify(**kwargs), status_code
 
 
-def extract_and_memmap(npz_path, array_name):
-    # Load the array from the .npz file
-    with np.load(npz_path) as data:
-        array = data[array_name]
-
-    # Save the array as a .npy file, which is a simple binary format
-    npy_path = npz_path.replace(".npz", f"_{array_name}.npy")
-    with open(npy_path, "wb") as f:
-        np.save(f, array)
-
-    # Now create a memmap to the .npy file
-    memmapped_array = np.memmap(
-        npy_path, dtype=array.dtype, mode="r", shape=array.shape
-    )
-
-    return memmapped_array
-
-
 def load_model(state="MA"):
     file_path = f"model/{state}_2020.npz"
 
-    # Extract and memmap the arrays
-    feats = extract_and_memmap(file_path, "feats")
-    locs = extract_and_memmap(file_path, "locs")
-
+    data = np.load(file_path)
+    feats = np.array(data["feats"])
+    locs = np.array(data["locs"])
     device = "cpu"
     textmodel = (
         CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch16")
@@ -67,10 +47,6 @@ def load_model(state="MA"):
         .to(device)
     )
     tokenizer = AutoTokenizer.from_pretrained("openai/clip-vit-base-patch16")
-
-    # Clean up if necessary
-    gc.collect()
-
     return feats, locs, device, textmodel, tokenizer
 
 

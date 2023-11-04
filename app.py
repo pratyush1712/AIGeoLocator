@@ -39,7 +39,7 @@ talisman = Talisman(
 
 
 # ------------------Model Config and Helper Functions------------------
-states = ["MA", "NY"]
+states = ["MA", "NY", "MN"]
 models = {}
 
 for state in states:
