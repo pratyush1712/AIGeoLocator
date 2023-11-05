@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        FLASK_ENV: production
+    image: graft:latest
+    container_name: graft-demo
+    ports:
+      - "8080:8080"
+    environment:
+      - FLASK_ENV=production
+    command: gunicorn --bind :8080 --workers 3 --threads 8 app:app

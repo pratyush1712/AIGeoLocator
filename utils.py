@@ -3,6 +3,15 @@ import numpy as np
 from transformers import AutoTokenizer, CLIPTextModelWithProjection
 from sentence_transformers import SentenceTransformer, util
 import torch
+from config import GCS
+
+if GCS:
+    import os
+    from google.cloud import storage
+
+    key = "creds.json"
+    storage_client = storage.Client.from_service_account_json(key)
+    bucket = storage_client.bucket("graft-models")
 
 model = SentenceTransformer("paraphrase-MiniLM-L6-v2")
 
@@ -34,13 +43,17 @@ def make_response(status_code=200, **kwargs):
     return jsonify(**kwargs), status_code
 
 
-def load_model(state="MA"):
-    file_path = f"model/{state}_2020.npz"
+def load_model(state="MA", device="cpu"):
+    if os.environ.get("FLASK_ENV") == "production" and GCS:
+        print("Downloading model from GCS")
+        print(os.environ.get("FLASK_ENV"))
+        blob = bucket.blob(f"{state}_2020.npz")
+        blob.download_to_filename(f"model/{state}_2020.npz")
 
+    file_path = f"model/{state}_2020.npz"
     data = np.load(file_path)
     feats = np.array(data["feats"])
     locs = np.array(data["locs"])
-    device = "cpu"
     textmodel = (
         CLIPTextModelWithProjection.from_pretrained("openai/clip-vit-base-patch16")
         .eval()
@@ -48,6 +61,13 @@ def load_model(state="MA"):
     )
     tokenizer = AutoTokenizer.from_pretrained("openai/clip-vit-base-patch16")
     return feats, locs, device, textmodel, tokenizer
+
+
+def initialize_models(states):
+    models = dict()
+    for state in states:
+        models[state] = load_model(state)
+    return models
 
 
 def load_images(files=["model/MA_2020.txt"]):

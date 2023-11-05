@@ -11,3 +11,4 @@ build/
 *.npz
 *.txt
 *.npy
+creds.json

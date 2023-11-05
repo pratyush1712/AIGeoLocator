@@ -8,6 +8,7 @@ G_STATIC_FONTS = "https://fonts.gstatic.com"
 OPENSTREETMAP = "https://*.tile.openstreetmap.org"
 CORNELL = "https://research.cs.cornell.edu"
 DATA = "data:"
+GCS = False  # will change it once we are ready to use cloud storage
 
 config = {
     "DEBUG": True,

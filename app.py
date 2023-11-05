@@ -7,7 +7,7 @@ from flask_cors import CORS
 from utils import (
     load_images,
     make_response,
-    load_model,
+    initialize_models,
     format_loc,
     get_threshold_from_query,
 )
@@ -20,7 +20,6 @@ import torch
 # Config Imports
 from config import config, csp
 from dotenv import load_dotenv, find_dotenv
-
 import secrets
 
 # ------------------Flask App Configuration------------------
@@ -39,13 +38,11 @@ talisman = Talisman(
 
 
 # ------------------Model Config and Helper Functions------------------
-states = ["MA", "NY", "MN"]
-models = {}
-
-for state in states:
-    models[state] = load_model(state)
-
-app.config["images"] = load_images([f"model/{state}_2020.txt" for state in states])
+# Initialize the models when the app starts
+with app.app_context():
+    states = ["NY"]
+    app.config["models"] = initialize_models(states)
+    app.config["images"] = load_images([f"model/{state}_2020.txt" for state in states])
 
 
 def high_prob_points(top_locs, state):
@@ -73,7 +70,7 @@ def high_prob_points(top_locs, state):
 
 
 def classify(query, thresh=0.05, state="MA"):
-    feats, locs, device, textmodel, tokenizer = models[state]
+    feats, locs, device, textmodel, tokenizer = app.config["models"][state]
     with torch.no_grad():
         textsenc = tokenizer([query], padding=True, return_tensors="pt").to(device)
         class_embeddings = F.normalize(textmodel(**textsenc).text_embeds, dim=-1)

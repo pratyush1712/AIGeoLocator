@@ -13,7 +13,6 @@ This guide provides detailed instructions on how to set up, run, and deploy the 
     ```
         export FLASK_ENV=production
         export IMAGE_SOURCE=https://research.cs.cornell.edu/caco/data/graft/MA/
-        export DATA_SOURCE=https://cv.cs.columbia.edu/utkarsh/mapper/MA_2020.npz
     ```
 
 3. **Virtual Environment (venv) Setup**:
