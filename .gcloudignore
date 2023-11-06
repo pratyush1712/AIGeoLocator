@@ -18,3 +18,5 @@ __pycache__/
 # Ignored by the build system
 /setup.cfg
 venv
+model/MN_2020.npz
+model/NY_2020.npz
