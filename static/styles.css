@@ -73,25 +73,29 @@ button {
 }
 
 #search {
-    display: flex; align-items: center; width: 80%;
-    
-    .div {
-        display: flex; align-items: center; flex-direction: row
-    }
+  display: flex;
+  align-items: center;
+  width: 80%;
+
+  .div {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+  }
 }
 
 #userInput {
-    width: 100%
+  width: 100%;
 }
 
 #submit {
-    min-height: 85px;
+  min-height: 85px;
 }
 
 #submit-btn {
-    position: relative;
-    display: block;
-    width: 140px;
+  position: relative;
+  display: block;
+  width: 140px;
 }
 
 #reset-btn {
@@ -118,7 +122,7 @@ reset-button:hover {
 }
 
 #toggle-container {
-    margin-right: 40px;
+  margin-right: 40px;
 }
 
 toggle-button {
@@ -237,4 +241,54 @@ toggle-button:hover {
   100% {
     transform: rotate(360deg);
   }
+}
+
+#login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px;
+  width: 100vw;
+}
+
+#login-container h1 {
+  color: #333;
+}
+
+#login-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  width: 100vw;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#login-form input {
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+#login-form button {
+  background-color: #4caf50;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+
+#login-form button:hover {
+  background-color: #45a049;
+}
+
+#message {
+  color: #cc3333;
+  margin-bottom: 10px;
 }

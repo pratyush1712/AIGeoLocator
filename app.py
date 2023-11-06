@@ -1,9 +1,15 @@
 # Flask Imports
 import os
-from flask import Flask, request, render_template, jsonify, session
+from flask import Flask, flash, request, render_template, jsonify, session
 from flask_caching import Cache
 from flask_talisman import Talisman
 from flask_cors import CORS
+from werkzeug.security import check_password_hash, generate_password_hash
+
+# Model Imports
+import numpy as np
+import torch.nn.functional as F
+import torch
 from utils import (
     load_images,
     make_response,
@@ -11,11 +17,6 @@ from utils import (
     format_loc,
     get_threshold_from_query,
 )
-
-# Model Imports
-import numpy as np
-import torch.nn.functional as F
-import torch
 
 # Config Imports
 from config import config, csp
@@ -36,6 +37,7 @@ talisman = Talisman(
     content_security_policy_nonce_in=["script-src", "style-src"],
 )
 
+PASSWORD_HASH = generate_password_hash(os.environ.get("PASSWORD"))
 
 # ------------------Model Config and Helper Functions------------------
 # Initialize the models when the app starts
@@ -107,12 +109,16 @@ def internal_error(error):
 # ------------------Flask App Routes------------------
 @app.route("/")
 def index():
+    if not session.get("logged_in"):
+        return render_template("login.html")
     return render_template("index.html")
 
 
 @cache.cached(timeout=300)
 @app.route("/classified-points")
 def classified_points():
+    if not session.get("logged_in"):
+        return make_response(error="Unauthorized", status_code=401)
     # get params
     query = request.args.get("query")
     thresh = request.args.get("thresh")
@@ -153,6 +159,20 @@ def classified_points():
     return make_response(
         thresh=thresh, blue_coords=list_of_blue_points, top_locs=top_locs
     )
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        password = request.form.get("password")
+        if check_password_hash(PASSWORD_HASH, password):
+            session["logged_in"] = True
+            return render_template("index.html")
+        else:
+            flash("Incorrect password.")
+            session["logged_in"] = False
+            return render_template("login.html", error="Incorrect password.")
+    return render_template("login.html")
 
 
 if __name__ == "__main__":

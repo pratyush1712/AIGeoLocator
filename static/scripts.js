@@ -223,3 +223,21 @@ function resetPage() {
 }
 
 L.Control.geocoder().addTo(map);
+
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById('login-form');
+    const passwordInput = document.getElementById('password');
+    const messageDiv = document.getElementById('message');
+
+    form.onsubmit = function (event) {
+        event.preventDefault();
+        const password = passwordInput.value;
+
+        if (password.length === 8) {
+            // Perform login (ajax call or form submission)
+            messageDiv.textContent = ''; // Clear message if correct
+        } else {
+            messageDiv.textContent = 'Password must be 8 characters long.';
+        }
+    };
+});
