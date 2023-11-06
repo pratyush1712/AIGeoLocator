@@ -15,15 +15,44 @@ if GCS:
 
 model = SentenceTransformer("paraphrase-MiniLM-L6-v2")
 
+# EuroSAT concepts: annualcrop, forest, herbaceousvegetation, highway, industrial, pasture, permanentcrop, residential, river, sealake
+# RESISC concepts: airplane, airport, baseball diamond, basketball court, beach, bridge, chaparral, church, circularfarmland, cloud, commercial area, dense residential, desert, forest, freeway, golf course, ground track field, harbor, industrial area, intersection, island, lake, meadow, medium residential, mobile home park, mountain, overpass, palace, parking lot, railway, railway station, rectangular farmland, river, roundabout, runway, sea ice, ship, snowberg, sparse residential, stadium, storage tank, tennis court, terrace, thermal power station, and wetland
 concepts = [
-    "plant",
-    "water",
-    "concept3",
-    "concept4",
-    "concept5",
+    "farmland",
+    "forest",
+    "highway",
+    "industrial",
+    "residential",
+    "river",
+    "sea or lake",
+    "beach",
+    "bridge",
+    "intersection",
+    "mountain",
+    "parking lot",
+    "railway",
+    "energy or energy farm",
+    "city"
 ]
 concept_embeddings = model.encode(concepts, convert_to_tensor=True)
-concept_thresholds = {"plant": 0.16, "water": 0.05}
+# concept_thresholds should directly bebased on the concepts list
+concept_thresholds = {
+    "farmland": 0.1,
+    "forest": 0.14,
+    "highway": 0.1,
+    "industrial": 0.04,
+    "residential": 0.03,
+    "river": 0.09,
+    "sea or lake": 0.12,
+    "beach": 0.11,
+    "bridge": 0.12,
+    "intersection": 0.04,
+    "mountain": 0.09,
+    "parking lot": 0.07,
+    "railway": 0.15,
+    "energy or energy farm": 0.05,
+    "city": 0.05
+}
 
 
 def get_most_similar_concept(query):
