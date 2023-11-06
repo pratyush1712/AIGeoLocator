@@ -1,3 +1,4 @@
+import os
 from flask import jsonify
 import numpy as np
 from transformers import AutoTokenizer, CLIPTextModelWithProjection
@@ -6,7 +7,6 @@ import torch
 from config import GCS
 
 if GCS:
-    import os
     from google.cloud import storage
 
     key = "creds.json"

@@ -40,7 +40,7 @@ talisman = Talisman(
 # ------------------Model Config and Helper Functions------------------
 # Initialize the models when the app starts
 with app.app_context():
-    states = ["NY"]
+    states = ["MA"]
     app.config["models"] = initialize_models(states)
     app.config["images"] = load_images([f"model/{state}_2020.txt" for state in states])
 
