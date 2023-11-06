@@ -32,7 +32,7 @@ concepts = [
     "parking lot",
     "railway",
     "energy or energy farm",
-    "city"
+    "city",
 ]
 concept_embeddings = model.encode(concepts, convert_to_tensor=True)
 # concept_thresholds should directly bebased on the concepts list
@@ -51,7 +51,7 @@ concept_thresholds = {
     "parking lot": 0.07,
     "railway": 0.15,
     "energy or energy farm": 0.05,
-    "city": 0.05
+    "city": 0.05,
 }
 
 
